@@ -22,3 +22,20 @@ Construir um sistema de análise de código-fonte com uso de LLM (como Google Ge
     2. Runtime	Node.js (ESM / TypeScript opcional)
     3. Contextual	Git CLI, arquivos locais ou JSON
     4. Vetorização	(opcional) ChromaDB ou LangChain
+
+## Explicacao Arquitutura 
+
+    project-root/
+    ├── agents/
+    │   ├── parserAgent.js          # Lê o código e gera estrutura/AST
+    │   ├── analyzerAgent.js        # Usa LLM para analisar com base na estrutura
+    │   ├── retrieverAgent.js       # (opcional) Recupera contexto adicional
+    │   └── agentCoordinator.js     # Coordena todos os agentes
+    │
+    ├── types/
+    │   └── agentTypes.d.ts         # Tipos base para entrada/saída entre agentes
+    │
+    ├── main.js                     # Ponto de entrada do sistema
+    ├── .env                        # Chave da API, config LLM
+    ├── package.json
+    └── README.md
