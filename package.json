@@ -1,6 +1,7 @@
 {
   "name": "codesentry",
   "version": "1.0.0",
+  "type": "module",
   "description": "## Objetivo",
   "main": "main.js",
   "scripts": {
@@ -8,5 +9,8 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "acorn": "^8.15.0"
+  }
 }

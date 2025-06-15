@@ -1,3 +1,8 @@
+import { parseFile } from './agent/parserAgent.js';
+
+const result = await parseFile('./exemplo.js');
+console.log(JSON.stringify(result, null, 2));
+
 const http = require('http');
 
 const server = http.createServer((req, res) => {
