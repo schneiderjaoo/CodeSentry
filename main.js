@@ -1,15 +1,21 @@
-import { parseFile } from './agent/parserAgent.js';
+import { getGitLog } from "./agents/parserAgent.js";
+import { analyzeSemantics } from "./agents/analyzerAgent.js";
 
-const result = await parseFile('./exemplo.js');
-console.log(JSON.stringify(result, null, 2));
+async function main() {
+  try {
+    const gitLogData = await getGitLog();
 
-const http = require('http');
+    console.log("=== Git Log capturado ===");
+    console.log(gitLogData);
 
-const server = http.createServer((req, res) => {
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end('Server is running on port 3000\n');
-});
+    const parsed = { content: gitLogData };
 
-server.listen(3000, () => {
-    console.log('Server listening on port 3000');
-});
+    const resultado = await analyzeSemantics(parsed);
+
+    console.log("Classificação semântica:", resultado.classification);
+  } catch (err) {
+    console.error("Erro no processamento:", err);
+  }
+}
+
+main();

@@ -33,7 +33,7 @@ Construir um sistema de análise de código-fonte com uso de LLM (como Google Ge
     │   └── agentCoordinator.js     # Coordena todos os agentes
     │
     ├── types/
-    │   └── agentTypes.d.ts         # Tipos base para entrada/saída entre agentes
+    │   └── agentTypes.ts         # Tipos base para entrada/saída entre agentes
     │
     ├── main.js                     # Ponto de entrada do sistema
     ├── .env                        # Chave da API, config LLM
