@@ -1,32 +1,10 @@
 {
-  "patterns": [
-    {
-      "name": "Use of Async/Await",
-      "requiredFiles": ["async", "await"]
-    },
-    {
-      "name": "Modularização Correta",
-      "requiredFiles": ["module", "export"]
-    },
-    {
-    "name": "Uso de Try/Catch",
-    "requiredFiles": ["try", "catch"]
-  }
-  ],
+  "patterns": [],
   "antipatterns": [
     {
       "name": "God Object",
-      "maxMethods": 10,
-      "maxLines": 300
-    },
-    {
-      "name": "Arquivo Muito Grande",
-      "maxLines": 500
-    },
-    {
-      "name": "Função Monstro",
-      "maxMethods": 1,
-      "maxLines": 100
+      "maxMethods": 5,
+      "maxLines": 10
     }
   ]
 }
