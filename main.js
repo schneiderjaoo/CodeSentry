@@ -1,23 +1,25 @@
-import { parseContent } from "./agents/parserAgent.js";
-import { analyzeSemantics } from "./agents/analyzerAgent.js";
+import { runAgenticPipeline } from "./agents/agentCoordinator.js";
+
+const diffExample = `
+diff --git a/index.js b/index.js
+index e69de29..f3c2a1b 100644
+--- a/index.js
++++ b/index.js
+@@ -0,0 +1,5 @@
++function greet(name) {
++  console.log("Hello, " + name) 
++}
++
++greet("Hello, world!");
+
+`;
 
 async function main() {
   try {
-    // Pega os commits e arquivos parseados
-    const parsed = await parseContent();
-
-    // parsed.content é a junção das mensagens de commit
-    // parsed.files são arquivos JS parseados
-
-    // Se quiser classificar commit a commit, faça:
-    const commitMessages = parsed.content.split('\n');
-
-    for (const message of commitMessages) {
-      const classification = await analyzeSemantics({ content: message });
-      console.log(`Commit: "${message}" => Classificação: ${classification.classification}`);
-    }
+    const result = await runAgenticPipeline(diffExample);
+    console.log("📊 Análise completa:\n", JSON.stringify(result, null, 2));
   } catch (err) {
-    console.error("Erro no processamento:", err);
+    console.error("Erro no pipeline:", err);
   }
 }
 

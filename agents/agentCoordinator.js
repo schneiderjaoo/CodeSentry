@@ -1,26 +1,11 @@
-const { parseContent } = require("./parserAgent");
-const { retrieveContext } = require("./retrieverAgent");
-const { analyzeSemantics } = require("./analyzerAgent");
-const { detectPatterns } = require("./patternDetectorAgent");
+import { parseGitDiff } from "./parserAgent.js";
+import { analyzeSemantics } from "./analyzerAgent.js";
 
-async function runTriagemPipeline(inputTexto) {
-  const parsed = await parseContent(inputTexto);
-
-  // (opcional)
-  const contextoExtra = await retrieveContext(parsed);
-
-  const patternAnalysis = await detectPatterns(parsed);
-
-  const resultado = await analyzeSemantics({
-    ...parsed,
-    contexto: contextoExtra,
-    padroes: patternAnalysis
-  });
+export async function runAgenticPipeline(gitDiff) {
+  const parsed = await parseGitDiff(gitDiff);
+  const semanticResult = await analyzeSemantics(parsed);
 
   return {
-    resultado,
-    padroes: patternAnalysis
+    semanticResult
   };
 }
-
-module.exports = { runTriagemPipeline };

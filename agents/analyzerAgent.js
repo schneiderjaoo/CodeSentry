@@ -5,36 +5,25 @@ dotenv.config();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY);
 
 export async function analyzeSemantics(parsedInput) {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const prompt = `
   Você é um assistente especializado em engenharia de software.
 
-  Classifique semanticamente o conteúdo abaixo em apenas uma das categorias:
+  Com base no código abaixo, responda com sugestões e problemas detectados.
 
-      Correção de Bug
-
-      Nova Funcionalidade
-
-      Documentação
-
-      Melhoria de Estilo
-
-      Refatoração
-
-      Outro
-
-  Conteúdo:
-
-  "${parsedInput.content}"
-
-  Responda com apenas **uma palavra**, escolhendo uma das categorias acima, sem explicações ou exemplos.
+  Código para analisar:
+  """
+  ${parsedInput.content}
+  """
   `;
 
   const result = await model.generateContent(prompt);
   const response = await result.response;
+  const text = response.text();
+
   return {
-    classification: response.text().trim(),
-    raw: parsedInput.content
+    classificacao: "Análise de Código",
+    resposta: text
   };
 }

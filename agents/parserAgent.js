@@ -97,3 +97,9 @@ export async function parseContent() {
     files: parsedFiles
   };
 }
+
+export async function parseGitDiff(diffText) {
+  return {
+    content: diffText
+  };
+}
