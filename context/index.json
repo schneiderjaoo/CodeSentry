@@ -6,5 +6,29 @@
   {
     "file": "controllers/userController.js",
     "content": "function createUser() { /* ... */ }"
+  },
+  {
+    "file": "models/userModel.js",
+    "content": "class User { constructor(name) { this.name = name; } }"
+  },
+  {
+    "file": "views/userView.js",
+    "content": "function renderUser(user) { /* ... */ }"
+  },
+  {
+    "file": "routes/userRoutes.js",
+    "content": "import { createUser } from '../controllers/userController';"
+  },
+  {
+    "file": "config/database.js",
+    "content": "const dbConfig = { host: 'localhost', port: 5432 };"
+  },
+  {
+    "file": "middlewares/authMiddleware.js",
+    "content": "function authMiddleware(req, res, next) { /* ... */ }"
+  },
+  {
+    "file": "services/userService.js",
+    "content": "function getUserById(id) { /* ... */ }"
   }
 ]

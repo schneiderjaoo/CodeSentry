@@ -1,7 +1,7 @@
 import { parseGitDiff } from "./parserAgent.js";
 import { analyzeSemantics } from "./analyzerAgent.js";
 import { detectPatterns } from "./patternDetectorAgent.js";
-import { retrieverAgent } from "./retrieverAgent.js";
+import { retrieveContext } from "./retrieverAgent.js";
 
 export async function runAgenticPipeline(gitDiff) {
   const parsed = await parseGitDiff(gitDiff);
@@ -14,7 +14,7 @@ export async function runAgenticPipeline(gitDiff) {
   // para análise semântica e detecção de padrões
   const semanticResult = await analyzeSemantics(parsed);
   const patterns = await detectPatterns(parsed);
-  const context = await retrieverAgent(parsed);
+  const context = await retrieveContext(parsed);
 
   return {
     semanticResult,
