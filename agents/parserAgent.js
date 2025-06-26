@@ -37,11 +37,63 @@ export async function parseFile(filePath) {
  */
 export function getGitLog() {
   return new Promise((resolve, reject) => {
-    exec('git log --pretty=format:"%H|%an|%ad|%s"', (error, stdout, stderr) => {
+    exec('git log --pretty=format:"%H|%an|%ad|%s" --name-only', (error, stdout, stderr) => {
       if (error) {
         return reject(`Erro ao executar git log: ${stderr}`);
       }
       resolve(stdout);
     });
   });
+}
+
+export async function parseContent() {
+  const rawLog = await getGitLog();
+  const lines = rawLog.split('\n');
+
+  const commits = [];
+  let currentCommit = null;
+
+  for (const line of lines) {
+    if (line.includes('|')) {
+      const [hash, author, date, message] = line.split('|');
+      currentCommit = {
+        hash,
+        author,
+        date,
+        message,
+        files: []
+      };
+      commits.push(currentCommit);
+    } else if (line.trim() !== '' && currentCommit) {
+      currentCommit.files.push(line.trim());
+    }
+  }
+
+  const seen = new Set();
+  const parsedFiles = [];
+
+  for (const file of commits.flatMap(c => c.files)) {
+    if (!seen.has(file) && file.endsWith('.js')) {
+      seen.add(file);
+
+      // Corrige o caminho caso tenha 'agent/' mas a pasta real seja 'agents/'
+      let correctedPath = file.replace(/^agent\//, 'agents/');
+
+      try {
+        const result = await parseFile(correctedPath); // usa acorn aqui
+        parsedFiles.push({
+          name: correctedPath,
+          lines: result.ast.loc?.end?.line || result.ast.body.length,
+          methods: result.structure.functions.length,
+        });
+      } catch (err) {
+        console.warn(`Erro ao parsear ${correctedPath}: ${err.message}`);
+      }
+    }
+  }
+
+  return {
+    content: commits.map(c => c.message).join('\n'),
+    files: parsedFiles
+  };
 }

@@ -1,0 +1,17 @@
+{
+  "patterns": [
+    {
+      "name": "Repository Pattern",
+      "description": "Isola lógica de persistência em uma camada específica.",
+      "requiredFiles": ["repository", "dao"]
+    }
+  ],
+  "antipatterns": [
+    {
+      "name": "God Object",
+      "description": "Classe com muitas responsabilidades.",
+      "maxMethods": 15,
+      "maxLines": 300
+    }
+  ]
+}

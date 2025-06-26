@@ -1,18 +1,21 @@
-import { getGitLog } from "./agents/parserAgent.js";
+import { parseContent } from "./agents/parserAgent.js";
 import { analyzeSemantics } from "./agents/analyzerAgent.js";
 
 async function main() {
   try {
-    const gitLogData = await getGitLog();
+    // Pega os commits e arquivos parseados
+    const parsed = await parseContent();
 
-    console.log("=== Git Log capturado ===");
-    console.log(gitLogData);
+    // parsed.content é a junção das mensagens de commit
+    // parsed.files são arquivos JS parseados
 
-    const parsed = { content: gitLogData };
+    // Se quiser classificar commit a commit, faça:
+    const commitMessages = parsed.content.split('\n');
 
-    const resultado = await analyzeSemantics(parsed);
-
-    console.log("Classificação semântica:", resultado.classification);
+    for (const message of commitMessages) {
+      const classification = await analyzeSemantics({ content: message });
+      console.log(`Commit: "${message}" => Classificação: ${classification.classification}`);
+    }
   } catch (err) {
     console.error("Erro no processamento:", err);
   }

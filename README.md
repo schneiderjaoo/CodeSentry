@@ -31,6 +31,7 @@ Construir um sistema de análise de código-fonte com uso de LLM (como Google Ge
     │   ├── analyzerAgent.js        # Usa LLM para analisar com base na estrutura
     │   ├── retrieverAgent.js       # (opcional) Recupera contexto adicional
     │   └── agentCoordinator.js     # Coordena todos os agentes
+    │   └── patternDetectorAgent.js # Identifica padrões e antipadrões
     │
     ├── types/
     │   └── agentTypes.ts         # Tipos base para entrada/saída entre agentes
