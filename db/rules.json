@@ -7,7 +7,11 @@
     {
       "name": "Modularização Correta",
       "requiredFiles": ["module", "export"]
-    }
+    },
+    {
+    "name": "Uso de Try/Catch",
+    "requiredFiles": ["try", "catch"]
+  }
   ],
   "antipatterns": [
     {
@@ -18,6 +22,11 @@
     {
       "name": "Arquivo Muito Grande",
       "maxLines": 500
+    },
+    {
+      "name": "Função Monstro",
+      "maxMethods": 1,
+      "maxLines": 100
     }
   ]
 }

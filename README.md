@@ -21,7 +21,7 @@ Construir um sistema de análise de código-fonte com uso de LLM (como Google Ge
     1. LLM	@google/generative-ai (Gemini)
     2. Runtime	Node.js (ESM / TypeScript opcional)
     3. Contextual	Git CLI, arquivos locais ou JSON
-    4. Vetorização	(opcional) ChromaDB ou Crew AI
+    4. Vetorização	(opcional) ChromaDB ou LangChain
 
 ## Explicacao Arquitutura 
 
