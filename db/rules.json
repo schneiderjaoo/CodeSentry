@@ -1,17 +1,23 @@
 {
   "patterns": [
     {
-      "name": "Repository Pattern",
-      "description": "Isola lógica de persistência em uma camada específica.",
-      "requiredFiles": ["repository", "dao"]
+      "name": "Use of Async/Await",
+      "requiredFiles": ["async", "await"]
+    },
+    {
+      "name": "Modularização Correta",
+      "requiredFiles": ["module", "export"]
     }
   ],
   "antipatterns": [
     {
       "name": "God Object",
-      "description": "Classe com muitas responsabilidades.",
-      "maxMethods": 15,
+      "maxMethods": 10,
       "maxLines": 300
+    },
+    {
+      "name": "Arquivo Muito Grande",
+      "maxLines": 500
     }
   ]
 }

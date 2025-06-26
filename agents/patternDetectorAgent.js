@@ -3,9 +3,7 @@ import fs from 'fs/promises';
 const RULES_PATH = './db/rules.json';
 
 /**
- * Recebe a AST ou metadados do código e aplica regras para detectar padrões/antipadrões
- * @param {{ files: Array<{name: string, lines: number, methods: number}> }} parsedInput
- * @returns {Promise<{patterns: any[], antipatterns: any[]}>}
+ * @param {{ files: Array<{name: string, lines: number, methods: number, content?: string}> }} parsedInput
  */
 export async function detectPatterns(parsedInput) {
   const rules = JSON.parse(await fs.readFile(RULES_PATH, 'utf8'));
@@ -16,16 +14,24 @@ export async function detectPatterns(parsedInput) {
     antipatterns: []
   };
 
-  // Verifica padrões
   for (const rule of rules.patterns) {
     for (const file of files) {
-      if (rule.requiredFiles.some(word => file.name.toLowerCase().includes(word))) {
-        results.patterns.push({ rule: rule.name, file: file.name });
+      const fileName = file.name.toLowerCase();
+
+      if (rule.requiredFiles.some(word => fileName.includes(word))) {
+        // Se a regra tiver padrão regex para o conteúdo, valida também
+        if (rule.requiredContentRegex) {
+          const regex = new RegExp(rule.requiredContentRegex, 'i');
+          if (file.content && regex.test(file.content)) {
+            results.patterns.push({ rule: rule.name, file: file.name });
+          }
+        } else {
+          results.patterns.push({ rule: rule.name, file: file.name });
+        }
       }
     }
   }
 
-  // Verifica antipadrões
   for (const rule of rules.antipatterns) {
     for (const file of files) {
       if ((rule.maxMethods && file.methods > rule.maxMethods) ||
