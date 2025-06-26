@@ -1,0 +1,10 @@
+[
+  {
+    "file": "utils/logger.js",
+    "content": "export function log(msg) { console.log(msg); }"
+  },
+  {
+    "file": "controllers/userController.js",
+    "content": "function createUser() { /* ... */ }"
+  }
+]
