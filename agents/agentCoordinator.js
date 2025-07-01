@@ -10,15 +10,20 @@ export async function runAgenticPipeline(gitDiff) {
   if (!parsed || !parsed.files || parsed.files.length === 0) {
     throw new Error("No valid files found in the git diff.");
   }
-  // Mandando o resultado do parse para os outros agentes
-  // para análise semântica e detecção de padrões
+  
+  // Roda os agentes com o contexto incluso
   const semanticResult = await analyzeSemantics(parsed);
   const patterns = await detectPatterns(parsed);
+
+  // Recupera o contexto relevante para os arquivos analisados
   const context = await retrieveContext(parsed);
+
+  // Adiciona o contexto ao objeto parsed
+  parsed.context = context;
 
   return {
     semanticResult,
     patterns,
-    context
+    context: parsed.context
   };
 }
