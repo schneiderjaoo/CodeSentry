@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  codesentry:
+    build: .
+    environment:
+      - NODE_ENV=production
+      - GEMINI_KEY=${GEMINI_KEY}
+    env_file:
+      - .env
+    volumes:
+      # Opcional: para desenvolvimento, monte o código
+      # - .:/app
+      # - /app/node_modules
+    stdin_open: true
+    tty: true
