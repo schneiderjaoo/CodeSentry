@@ -3,14 +3,16 @@ version: '3.8'
 services:
   codesentry:
     build: .
-    environment:
-      - NODE_ENV=production
-      - GEMINI_KEY=${GEMINI_KEY}
+    container_name: codesentry-app
     env_file:
       - .env
-    volumes:
-      # Opcional: para desenvolvimento, monte o código
-      # - .:/app
-      # - /app/node_modules
+    environment:
+      - NODE_ENV=production
+    # Remove volumes para comportamento similar ao docker run --rm
+    # volumes:
+    #   - .:/app
+    #   - /app/node_modules
     stdin_open: true
     tty: true
+    # Auto-remove container quando parar (similar ao --rm)
+    restart: "no"

@@ -78,16 +78,36 @@ Perfeito! Eu analisei seu projeto CodeSentry e o Dockerfile já está bem config
 
 ## Como usar
 
-Para construir e executar o container:
+### 🚀 Métodos de Execução
 
+#### 1. **Makefile (Recomendado)**
+```bash
+# Executar (equivalente a docker run --rm --env-file .env codesentry)
+make run
+
+# Outras opções
+make build          # Só construir a imagem
+make run-compose    # Executar com docker-compose
+make run-dev        # Modo desenvolvimento com hot-reload
+make clean          # Limpar containers e imagens
+make help           # Ver ajuda completa
+```
+
+#### 2. **Docker Compose**
+```bash
+# Rodar com docker-compose (lê automaticamente o .env)
+docker-compose up --build
+
+# Modo desenvolvimento (com volumes montados)
+docker-compose -f docker-compose.dev.yml up --build
+```
+
+#### 3. **Docker Tradicional**
 ```bash
 # Construir a imagem
 docker build -t codesentry .
 
-# Executar o container passando a API_KEY
-docker run --rm --env-file .env codesentry
-
-# Ou usando um arquivo .env (recomendado para desenvolvimento)
+# Executar o container
 docker run --rm --env-file .env codesentry
 
 # Para desenvolvimento com bind mount
@@ -98,14 +118,20 @@ docker run --rm -v $(pwd):/app -w /app --env-file .env codesentry
 
 - `GEMINI_KEY`: Sua chave da API do Google Gemini
 
-### Usando Docker Compose (Recomendado)
+## 🐳 Estrutura Docker
 
-```bash
-# Rodar com docker-compose (lê automaticamente o .env)
-docker-compose up --build
+O projeto inclui os seguintes arquivos para facilitar a execução com Docker:
 
-# Ou em modo detached
-docker-compose up -d --build
-```
-docker run --rm -v $(pwd):/app -w /app codesentry
-```
+- **`Dockerfile`**: Imagem principal otimizada para produção
+- **`.dockerignore`**: Exclui arquivos desnecessários do build
+- **`docker-compose.yml`**: Configuração principal (produção)
+- **`docker-compose.dev.yml`**: Configuração para desenvolvimento
+- **`Makefile`**: Atalhos convenientes para comandos Docker
+
+### Características do Dockerfile
+
+1. **Base Image**: Node.js 22 com Alpine Linux (imagem pequena)
+2. **Segurança**: Usuário não-root (`codesentry`)
+3. **Cache Otimizado**: Copia `package*.json` primeiro
+4. **Health Check**: Verifica se a aplicação está funcionando
+5. **Permissions**: Configura permissões para `/app/context` e `/app/db`
