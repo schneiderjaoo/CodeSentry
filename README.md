@@ -1,137 +1,230 @@
-# Resumo do Projeto: Agente de Análise de Código com RAG em Node.js
+# CodeSentry - Agente de Análise de Código com RAG
 
-## Objetivo
+## 📋 Resumo do Projeto
 
-Construir um sistema de análise de código-fonte com uso de LLM (como Google Gemini), seguindo a arquitetura Agentic RAG (Retrieval-Augmented Generation). O sistema será escrito em Node.js, de forma modular, simples e extensível — sem uso de engenharia de prompt explícita.
+CodeSentry é um sistema de análise de código que combina múltiplos agentes especializados com **Retrieval-Augmented Generation (RAG)** para fornecer insights profundos sobre mudanças no código. O sistema analisa git diffs e oferece:
 
-## Arquitetura Agentic RAG (adaptada para Node.js)
+- **Análise Semântica** com Google Gemini
+- **Detecção de Padrões** baseada em regras e similaridade
+- **Contexto Enriquecido** através de RAG com base de conhecimento local
+- **Insights Automáticos** sobre qualidade e boas práticas
 
-    1. Agent – Controla o fluxo: recebe código, decide se precisa de contexto e orquestra chamadas.
-
-    2. Retriever – Recupera dados complementares (documentação, padrões, histórico Git).
-
-    3. LLM – Realiza a análise com base no código e no contexto.
-
-    4. Prompt Builder – Gera entrada estruturada JSON para o modelo.
-
-    5. Saída Estruturada – Retorno em JSON com resumo, problemas e sugestões.
-
-## Tecnologias Utilizadas
-
-    1. LLM	@google/generative-ai (Gemini)
-    2. Runtime	Node.js (ESM / TypeScript opcional)
-    3. Contextual	Git CLI, arquivos locais ou JSON
-    4. Vetorização	(opcional) ChromaDB ou LangChain
-
-## Explicacao Arquitutura 
-
-    project-root/
-    ├── agents/
-    │   ├── parserAgent.js          # Lê o código e gera estrutura/AST
-    │   ├── analyzerAgent.js        # Usa LLM para analisar com base na estrutura
-    │   ├── retrieverAgent.js       # (opcional) Recupera contexto adicional
-    │   └── agentCoordinator.js     # Coordena todos os agentes
-    │   └── patternDetectorAgent.js # Identifica padrões e antipadrões
-    │   └── promptBuilder.js        # Constroi/Monta o Prompt
-    │
-    ├── types/
-    │   └── agentTypes.ts         # Tipos base para entrada/saída entre agentes
-    │
-    ├── main.js                     # Ponto de entrada do sistema
-    ├── .env                        # Chave da API, config LLM
-    ├── package.json
-    └── README.md
-
-I'll analyze your project structure and generate a complete Dockerfile based on your Node.js project. Let me first examine the key files to understand the project requirements. Now I'll generate a complete Dockerfile for your CodeSentry project based on the analysis: 
-```
-
-
-Made changes.
-
+## 🏗️ Arquitetura do Sistema
 
 ```
-I notice the file was already properly configured! Let me create a `.dockerignore` file to complement your Dockerfile and ensure optimal build performance: 
+CodeSentry/
+├── agents/
+│   ├── agentCoordinator.js     # Orquestra todos os agentes
+│   ├── parserAgent.js          # Parse de git diff + enriquecimento RAG
+│   ├── analyzerAgent.js        # Análise semântica com LLM
+│   ├── patternDetectorAgent.js # Detecção de padrões + RAG
+│   ├── retrieverAgent.js       # Recuperação de contexto
+│   └── simpleRAG.js           # Sistema RAG com SQLite
+├── db/
+│   ├── rules.json             # Regras de padrões/antipadrões
+│   └── rag_knowledge.db       # Base de conhecimento SQLite
+├── main.js                    # Ponto de entrada
+└── README.md
+```
 
-Made changes.
+## 🧠 Como Funciona
 
-Perfeito! Eu analisei seu projeto CodeSentry e o Dockerfile já está bem configurado. Aqui está o que foi implementado:
+### 1. **Inicialização RAG**
+```javascript
+await initializeRAG();
+```
+- Cria banco SQLite local (`./db/rag_knowledge.db`)
+- Indexa automaticamente toda a base de código
+- Extrai palavras-chave e calcula similaridades
 
-## Dockerfile Features
+### 2. **Pipeline de Análise**
+```javascript
+const result = await runAgenticPipeline(gitDiff);
+```
 
-1. **Base Image**: Node.js 22 com Alpine Linux para uma imagem menor
-2. **Segurança**: Usuário não-root (`codesentry`) para melhor segurança
-3. **Cache Layers**: Copia `package*.json` primeiro para otimizar o cache do Docker
-4. **Dependencies**: Instala apenas dependências de produção
-5. **Permissions**: Configura permissões adequadas para diretórios `/app/context` e `/app/db`
-6. **Health Check**: Verifica se a aplicação está funcionando
-7. **Port**: Expõe porta 3000 para futuras implementações HTTP
-8. **Entry Point**: Executa main.js como ponto de entrada
+**Fluxo dos Agentes:**
 
-## Adicionais
+1. **Parser Agent** → Processa git diff + busca código similar
+2. **Analyzer Agent** → Análise semântica com Gemini
+3. **Pattern Detector** → Detecta padrões usando regras + RAG
+4. **Retriever Agent** → Adiciona contexto relevante
 
-.dockerignore para otimizar o build, excluindo arquivos desnecessários como:
-- node_modules
-- Arquivos de log
-- Arquivos de ambiente
-- Documentação
-- Arquivos do sistema
+### 3. **Sistema RAG Simplificado**
 
-## Como usar
+**Tecnologia:** SQLite + Similaridade Jaccard (em vez de ChromaDB)
 
-### 🚀 Métodos de Execução
+**Como funciona:**
+- ✅ **Indexação**: Extrai palavras-chave de cada arquivo
+- ✅ **Busca**: Calcula similaridade entre códigos
+- ✅ **Contexto**: Enriquece análise com exemplos similares
+- ✅ **Local**: Sem dependências externas
 
-#### 1. **Makefile (Recomendado)**
+```javascript
+// Exemplo de saída RAG
+{
+  ragContext: {
+    similarPatterns: [
+      {
+        content: "function greet(name) { ... }",
+        similarity: 0.85,
+        file_path: "./utils/helpers.js"
+      }
+    ],
+    hasContext: true
+  }
+}
+```
+
+## 🚀 Como Usar
+
+### **Execução Simples (Recomendado)**
 ```bash
-# Executar (equivalente a docker run --rm --env-file .env codesentry)
+# Instalar dependências
+npm install
+
+# Executar com Makefile
 make run
 
-# Outras opções
-make build          # Só construir a imagem
-make run-compose    # Executar com docker-compose
-make run-dev        # Modo desenvolvimento com hot-reload
-make clean          # Limpar containers e imagens
-make help           # Ver ajuda completa
+# Ou executar diretamente
+node main.js
 ```
 
-#### 2. **Docker Compose**
+### **Outras Opções**
 ```bash
-# Rodar com docker-compose (lê automaticamente o .env)
+# Só construir imagem Docker
+make build
+
+# Modo desenvolvimento (com volumes)
+make run-dev
+
+# Limpar containers e imagens
+make clean
+
+# Ver ajuda
+make help
+```
+
+### **Docker Compose**
+```bash
+# Executar com docker-compose
 docker-compose up --build
 
-# Modo desenvolvimento (com volumes montados)
-docker-compose -f docker-compose.dev.yml up --build
+# Modo desenvolvimento
+docker-compose -f docker-compose.dev.yml up
 ```
 
-#### 3. **Docker Tradicional**
+## 📊 Exemplo de Execução
+
+**Input (Git Diff):**
+```diff
+diff --git a/index.js b/index.js
++function greet(name) {
++  console.log("Hello, " + name) 
++}
++
++greet("Hello, world!");
+```
+
+**Output:**
+```javascript
+{
+  semanticResult: "Função simples de saudação. Considera usar template literals.",
+  patterns: {
+    patterns: [
+      { rule: "function_declaration", confidence: 1.0 }
+    ],
+    antipatterns: [
+      { rule: "string_concatenation", confidence: 0.8 }
+    ],
+    ragInsights: [
+      { 
+        description: "Similar code found in ./utils/helpers.js",
+        similarity: 0.75
+      }
+    ]
+  },
+  stats: {
+    filesAnalyzed: 1,
+    ragEnhanced: 1
+  }
+}
+```
+
+## 🔧 Configuração
+
+### **Variáveis de Ambiente**
 ```bash
-# Construir a imagem
-docker build -t codesentry .
-
-# Executar o container
-docker run --rm --env-file .env codesentry
-
-# Para desenvolvimento com bind mount
-docker run --rm -v $(pwd):/app -w /app --env-file .env codesentry
+# .env
+GEMINI_KEY=your_gemini_api_key_here
+NODE_ENV=development
 ```
 
-### Variáveis de Ambiente Necessárias
+### **Dependências Principais**
+```json
+{
+  "@google/generative-ai": "^0.21.0",
+  "sqlite3": "^5.1.6",
+  "node-nlp": "^4.27.0",
+  "dotenv": "^16.4.7"
+}
+```
 
-- `GEMINI_KEY`: Sua chave da API do Google Gemini
+## 🐳 Docker
 
-## 🐳 Estrutura Docker
+### **Estrutura Docker**
+- **Dockerfile**: Imagem otimizada com Node.js 22 Alpine
+- **docker-compose.yml**: Execução simples com variáveis de ambiente
+- **docker-compose.dev.yml**: Modo desenvolvimento com hot-reload
+- **.dockerignore**: Exclui arquivos desnecessários do build
 
-O projeto inclui os seguintes arquivos para facilitar a execução com Docker:
+### **Características do Dockerfile**
+- ✅ **Segurança**: Usuário não-root
+- ✅ **Otimização**: Cache de layers para dependencies
+- ✅ **Saúde**: Health check integrado
+- ✅ **Leve**: Base Alpine Linux
 
-- **`Dockerfile`**: Imagem principal otimizada para produção
-- **`.dockerignore`**: Exclui arquivos desnecessários do build
-- **`docker-compose.yml`**: Configuração principal (produção)
-- **`docker-compose.dev.yml`**: Configuração para desenvolvimento
-- **`Makefile`**: Atalhos convenientes para comandos Docker
+## 🎯 Features Implementadas
 
-### Características do Dockerfile
+### **✅ RAG (Retrieval-Augmented Generation)**
+- Sistema de busca por similaridade local
+- Base de conhecimento em SQLite
+- Enriquecimento automático de contexto
+- Sem dependências externas complexas
 
-1. **Base Image**: Node.js 22 com Alpine Linux (imagem pequena)
-2. **Segurança**: Usuário não-root (`codesentry`)
-3. **Cache Otimizado**: Copia `package*.json` primeiro
-4. **Health Check**: Verifica se a aplicação está funcionando
-5. **Permissions**: Configura permissões para `/app/context` e `/app/db`
+### **✅ Análise Multi-Agente**
+- Parser inteligente de git diffs
+- Análise semântica com LLM
+- Detecção de padrões híbrida (regras + ML)
+- Contexto enriquecido
+
+### **✅ Docker Ready**
+- Containers otimizados
+- Múltiplos modos de execução
+- Fácil deployment
+
+## 🔬 Próximos Passos
+
+- [ ] Interface web para visualização
+- [ ] Integração com GitHub Actions
+- [ ] Métricas de qualidade avançadas
+- [ ] Cache inteligente de análises
+- [ ] Suporte a mais linguagens
+
+## 📝 Logs de Exemplo
+
+```bash
+$ make run
+Initializing Simple RAG knowledge base...
+Indexed 15 files in knowledge base
+Simple RAG initialization completed successfully
+
+=== Enhanced Analysis Results ===
+Semantic Analysis: Função bem estruturada, considera usar template literals
+Patterns: { patterns: [...], antipatterns: [...], ragInsights: [...] }
+Stats: { filesAnalyzed: 1, ragEnhanced: 1 }
+```
+
+---
+
+**Tecnologias:** Node.js, Google Gemini, SQLite, Docker, NLP
+**Licença:** MIT

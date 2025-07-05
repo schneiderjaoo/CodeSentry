@@ -1,4 +1,4 @@
-import { runAgenticPipeline } from "./agents/agentCoordinator.js";
+import { runAgenticPipeline, initializeRAG } from "./agents/agentCoordinator.js";
 
 const diffExample = `
 diff --git a/index.js b/index.js
@@ -16,10 +16,19 @@ index e69de29..f3c2a1b 100644
 
 async function main() {
   try {
+    // Inicializa RAG (não bloqueia se falhar)
+    await initializeRAG();
+    
     const result = await runAgenticPipeline(diffExample);
-    console.log("📊 Análise completa:\n", JSON.stringify(result, null, 2));
-  } catch (err) {
-    console.error("Erro no pipeline:", err);
+    
+    console.log("\n=== Enhanced Analysis Results ===");
+    console.log("Semantic Analysis:", result.semanticResult);
+    console.log("Patterns:", result.patterns);
+    console.log("Context:", result.context);
+    console.log("Stats:", result.stats);
+    
+  } catch (error) {
+    console.error("Error:", error.message);
   }
 }
 
