@@ -264,7 +264,7 @@ Stats: { filesAnalyzed: 1, ragEnhanced: 1 }
 ### **🚀 Subir o Serviço**
 ```bash
 # Deploy
-gcloud run deploy codesentry --source . --set-env-vars="GEMINI_KEY=AIzaSyCGE-4RP-2m2QRn0gnXhH6XytlcB4i_Zq8" --allow-unauthenticated
+gcloud run deploy codesentry --source . --set-env-vars="GEMINI_KEY=*" --allow-unauthenticated
 
 # Redeploy (atualizar)
 gcloud run deploy codesentry --source .
