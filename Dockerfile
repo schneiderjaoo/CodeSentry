@@ -24,15 +24,16 @@ RUN mkdir -p /app/context /app/db && \
 # Switch to non-root user
 USER codesentry
 
-# Expose port (if your app serves HTTP requests in the future)
-EXPOSE 3000
+# Expose port for Cloud Run
+EXPOSE 8080
 
 # Environment variables (can be overridden at runtime)
 ENV NODE_ENV=production
+ENV PORT=8080
 
-# Health check
+# Health check updated for HTTP server
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "console.log('Health check passed')" || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
 
 # Default command
 CMD ["node", "main.js"]
