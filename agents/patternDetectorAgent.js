@@ -1,14 +1,14 @@
 import fs from 'fs/promises';
-import SimpleRAG from './simpleRAG.js';
+import AdvancedRAG from './advancedRAG.js';
 
 const RULES_PATH = './db/rules.json';
 
-// Inst√¢ncia global do RAG
+// Inst‚ncia global do RAG
 let ragService = null;
 
 async function getRagService() {
   if (!ragService) {
-    ragService = new SimpleRAG();
+    ragService = new AdvancedRAG();
     await ragService.initialize();
   }
   return ragService;
@@ -144,6 +144,6 @@ function isLikelyBadPattern(pattern) {
 }
 
 export async function indexPatterns() {
-  // Esta fun√ß√£o pode ser expandida para indexar padr√µes espec√≠ficos
+  // Esta funÁ„o pode ser expandida para indexar padrıes especÌficos
   console.log("Pattern indexing completed (using main codebase index)");
 }

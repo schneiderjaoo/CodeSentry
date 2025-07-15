@@ -4,17 +4,27 @@ class CodeSentryApp {
       statusIndicator: document.getElementById('status-indicator'),
       statusText: document.getElementById('status-text'),
       gitDiffInput: document.getElementById('git-diff-input'),
+      commitDiffInput: document.getElementById('commit-diff-input'),
+      refactoringDiffInput: document.getElementById('refactoring-diff-input'),
+      commitMessage: document.getElementById('commit-message'),
+      commitHash: document.getElementById('commit-hash'),
+      beforeCode: document.getElementById('before-code'),
+      afterCode: document.getElementById('after-code'),
       analyzeBtn: document.getElementById('analyze-btn'),
       demoBtn: document.getElementById('demo-btn'),
       clearBtn: document.getElementById('clear-btn'),
+      statsBtn: document.getElementById('stats-btn'),
       outputContainer: document.getElementById('output-container'),
       charCount: document.getElementById('char-count'),
       analysisTime: document.getElementById('analysis-time'),
       btnText: document.querySelector('.btn-text'),
-      loadingSpinner: document.querySelector('.loading-spinner')
+      loadingSpinner: document.querySelector('.loading-spinner'),
+      tabBtns: document.querySelectorAll('.tab-btn'),
+      tabContents: document.querySelectorAll('.tab-content')
     };
 
     this.serverOnline = false;
+    this.currentTab = 'diff';
     this.initializeEventListeners();
     this.checkServerStatus();
     
@@ -26,13 +36,34 @@ class CodeSentryApp {
     this.elements.analyzeBtn.addEventListener('click', () => this.analyzeCode());
     this.elements.demoBtn.addEventListener('click', () => this.loadDemo());
     this.elements.clearBtn.addEventListener('click', () => this.clearAll());
+    this.elements.statsBtn.addEventListener('click', () => this.loadStats());
     
-    this.elements.gitDiffInput.addEventListener('input', () => {
-      this.updateCharCount();
+    // Tab switching
+    this.elements.tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => this.switchTab(btn.dataset.tab));
     });
+    
+    // Input listeners
+    this.elements.gitDiffInput.addEventListener('input', () => this.updateCharCount());
+    this.elements.commitDiffInput.addEventListener('input', () => this.updateCharCount());
+    this.elements.refactoringDiffInput.addEventListener('input', () => this.updateCharCount());
     
     // Keyboard shortcuts
     this.elements.gitDiffInput.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        this.analyzeCode();
+      }
+    });
+    
+    this.elements.commitDiffInput.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        this.analyzeCode();
+      }
+    });
+    
+    this.elements.refactoringDiffInput.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
         this.analyzeCode();
@@ -61,8 +92,36 @@ class CodeSentryApp {
     this.elements.statusText.textContent = text;
   }
 
+  switchTab(tabName) {
+    this.currentTab = tabName;
+    
+    // Update tab buttons
+    this.elements.tabBtns.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === tabName);
+    });
+    
+    // Update tab contents
+    this.elements.tabContents.forEach(content => {
+      content.classList.toggle('active', content.id === `${tabName}-tab`);
+    });
+    
+    // Update character count
+    this.updateCharCount();
+  }
+
   updateCharCount() {
-    const text = this.elements.gitDiffInput.value;
+    let text = '';
+    switch (this.currentTab) {
+      case 'diff':
+        text = this.elements.gitDiffInput.value;
+        break;
+      case 'commit':
+        text = this.elements.commitDiffInput.value;
+        break;
+      case 'refactoring':
+        text = this.elements.refactoringDiffInput.value;
+        break;
+    }
     this.elements.charCount.textContent = `${text.length} caracteres`;
   }
 
@@ -87,25 +146,48 @@ index e69de29..f3c2a1b 100644
         this.elements.gitDiffInput.value = demoGitDiff;
         this.updateCharCount();
         this.displayResults(data);
-        this.showNotification('‚úÖ Demo carregado e analisado com sucesso!', 'success');
+        this.showNotification('? Demo carregado e analisado com sucesso!', 'success');
       } else {
         this.showError('Erro ao carregar demo', data.error);
       }
     } catch (error) {
-      this.showError('Erro de conex√£o', 'N√£o foi poss√≠vel carregar o demo.');
+      this.showError('Erro de conex„o', 'N„o foi possÌvel carregar o demo.');
     }
   }
 
   async analyzeCode() {
-    const gitDiff = this.elements.gitDiffInput.value.trim();
+    let gitDiff = '';
+    let endpoint = '/api/analyze';
+    let body = {};
+    
+    switch (this.currentTab) {
+      case 'diff':
+        gitDiff = this.elements.gitDiffInput.value.trim();
+        body = { gitDiff };
+        break;
+      case 'commit':
+        gitDiff = this.elements.commitDiffInput.value.trim();
+        const commitMessage = this.elements.commitMessage.value.trim();
+        const commitHash = this.elements.commitHash.value.trim();
+        endpoint = '/api/analyze-commit';
+        body = { gitDiff, commitMessage, commitHash };
+        break;
+      case 'refactoring':
+        gitDiff = this.elements.refactoringDiffInput.value.trim();
+        const beforeCode = this.elements.beforeCode.value.trim();
+        const afterCode = this.elements.afterCode.value.trim();
+        endpoint = '/api/analyze-refactoring';
+        body = { gitDiff, beforeCode, afterCode };
+        break;
+    }
     
     if (!gitDiff) {
-      this.showNotification('‚ö†Ô∏è Por favor, insira um git diff para an√°lise.', 'warning');
+      this.showNotification('?? Por favor, insira um git diff para an·lise.', 'warning');
       return;
     }
 
     if (!this.serverOnline) {
-      this.showError('Erro de conex√£o', 'Servidor offline. Verifique a conex√£o.');
+      this.showError('Erro de conex„o', 'Servidor offline. Verifique a conex„o.');
       return;
     }
 
@@ -113,12 +195,12 @@ index e69de29..f3c2a1b 100644
     const startTime = Date.now();
 
     try {
-      const response = await fetch('/api/analyze', {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ gitDiff })
+        body: JSON.stringify(body)
       });
 
       const data = await response.json();
@@ -126,14 +208,38 @@ index e69de29..f3c2a1b 100644
 
       if (data.success) {
         this.displayResults(data);
-        this.elements.analysisTime.textContent = `An√°lise conclu√≠da em ${analysisTime}ms`;
-        this.showNotification('‚úÖ An√°lise conclu√≠da com sucesso!', 'success');
+        this.elements.analysisTime.textContent = `An·lise concluÌda em ${analysisTime}ms`;
+        this.showNotification('? An·lise concluÌda com sucesso!', 'success');
       } else {
-        this.showError('Erro na an√°lise', data.error);
+        this.showError('Erro na an·lise', data.error);
       }
 
     } catch (error) {
-      this.showError('Erro de conex√£o', 'Falha na comunica√ß√£o com o servidor.');
+      this.showError('Erro de conex„o', 'Falha na comunicaÁ„o com o servidor.');
+    } finally {
+      this.setLoadingState(false);
+    }
+  }
+
+  async loadStats() {
+    if (!this.serverOnline) {
+      this.showError('Erro de conex„o', 'Servidor offline. Verifique a conex„o.');
+      return;
+    }
+
+    this.setLoadingState(true);
+
+    try {
+      const [commitStats, refactoringStats] = await Promise.all([
+        fetch('/api/commit-stats').then(r => r.json()),
+        fetch('/api/refactoring-stats').then(r => r.json())
+      ]);
+
+      this.displayStats(commitStats, refactoringStats);
+      this.showNotification('? EstatÌsticas carregadas com sucesso!', 'success');
+
+    } catch (error) {
+      this.showError('Erro de conex„o', 'Falha ao carregar estatÌsticas.');
     } finally {
       this.setLoadingState(false);
     }
@@ -142,14 +248,192 @@ index e69de29..f3c2a1b 100644
   displayResults(data) {
     const result = data.data;
     
-    this.elements.outputContainer.innerHTML = `
-      <div class="result-container">
-        ${this.createResultCard('üß† An√°lise Sem√¢ntica', result.semanticResult)}
-        ${result.patterns ? this.createPatternsCard(result.patterns) : ''}
-        ${result.context ? this.createResultCard('üìö Contexto', result.context) : ''}
-        ${result.stats ? this.createStatsCard(result.stats, result.metadata) : ''}
+    let html = '<div class="result-container">';
+    
+    // Display based on analysis type
+    if (result.commitAnalysis) {
+      html += this.createCommitAnalysisCard(result.commitAnalysis);
+    }
+    
+    if (result.refactoringAnalysis) {
+      html += this.createRefactoringAnalysisCard(result.refactoringAnalysis);
+    }
+    
+    // Standard analysis results
+    if (result.semanticResult) {
+      html += this.createResultCard('?? An·lise Sem‚ntica', result.semanticResult);
+    }
+    
+    if (result.patterns) {
+      html += this.createPatternsCard(result.patterns);
+    }
+    
+    if (result.context) {
+      html += this.createResultCard('?? Contexto', result.context);
+    }
+    
+    if (result.stats) {
+      html += this.createStatsCard(result.stats, result.metadata);
+    }
+    
+    html += '</div>';
+    
+    this.elements.outputContainer.innerHTML = html;
+  }
+
+  createCommitAnalysisCard(analysis) {
+    return `
+      <div class="result-card">
+        <div class="result-header">?? An·lise de Commit</div>
+        <div class="result-content">
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-label">Tipo de Commit</div>
+              <div class="stat-value">${analysis.classification}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Tipo de RefatoraÁ„o</div>
+              <div class="stat-value">${analysis.refactoringType || 'N/A'}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">MudanÁa de Complexidade</div>
+              <div class="stat-value">${analysis.complexityChange}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Score de Risco</div>
+              <div class="stat-value ${analysis.riskScore > 0.7 ? 'warning' : 'success'}">${(analysis.riskScore * 100).toFixed(1)}%</div>
+            </div>
+          </div>
+          
+          ${analysis.suggestions?.length > 0 ? `
+          <div style="margin-top: 1rem;">
+            <h4 style="margin-bottom: 0.5rem; color: var(--primary);">?? Sugestıes</h4>
+            <ul style="margin-left: 1rem;">
+              ${analysis.suggestions.map(s => `<li>${s}</li>`).join('')}
+            </ul>
+          </div>
+          ` : ''}
+          
+          ${analysis.patterns?.length > 0 ? `
+          <div style="margin-top: 1rem;">
+            <h4 style="margin-bottom: 0.5rem; color: var(--primary);">?? Padrıes Detectados</h4>
+            <ul style="margin-left: 1rem;">
+              ${analysis.patterns.map(p => `<li>${p}</li>`).join('')}
+            </ul>
+          </div>
+          ` : ''}
+        </div>
       </div>
     `;
+  }
+
+  createRefactoringAnalysisCard(analysis) {
+    return `
+      <div class="result-card">
+        <div class="result-header">?? An·lise de RefatoraÁ„o</div>
+        <div class="result-content">
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-label">Tipo de RefatoraÁ„o</div>
+              <div class="stat-value">${analysis.refactoringType}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">ConfianÁa</div>
+              <div class="stat-value">${(analysis.confidence * 100).toFixed(1)}%</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Complexidade Antes</div>
+              <div class="stat-value">${analysis.complexity.before}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Complexidade Depois</div>
+              <div class="stat-value">${analysis.complexity.after}</div>
+            </div>
+          </div>
+          
+          ${analysis.improvements?.length > 0 ? `
+          <div style="margin-top: 1rem;">
+            <h4 style="margin-bottom: 0.5rem; color: var(--success);">? Melhorias</h4>
+            <ul style="margin-left: 1rem;">
+              ${analysis.improvements.map(i => `<li>${i}</li>`).join('')}
+            </ul>
+          </div>
+          ` : ''}
+          
+          ${analysis.risks?.length > 0 ? `
+          <div style="margin-top: 1rem;">
+            <h4 style="margin-bottom: 0.5rem; color: var(--warning);">?? Riscos</h4>
+            <ul style="margin-left: 1rem;">
+              ${analysis.risks.map(r => `<li>${r}</li>`).join('')}
+            </ul>
+          </div>
+          ` : ''}
+          
+          ${analysis.suggestions?.length > 0 ? `
+          <div style="margin-top: 1rem;">
+            <h4 style="margin-bottom: 0.5rem; color: var(--primary);">?? Sugestıes</h4>
+            <ul style="margin-left: 1rem;">
+              ${analysis.suggestions.map(s => `<li>${s}</li>`).join('')}
+            </ul>
+          </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  displayStats(commitStats, refactoringStats) {
+    const html = `
+      <div class="result-container">
+        <div class="result-card">
+          <div class="result-header">?? EstatÌsticas de Commits</div>
+          <div class="result-content">
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-label">Total de Commits</div>
+                <div class="stat-value">${commitStats.data?.totalCommits || 0}</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">Score de Risco MÈdio</div>
+                <div class="stat-value">${((commitStats.data?.averageRiskScore || 0) * 100).toFixed(1)}%</div>
+              </div>
+            </div>
+            
+            ${commitStats.data?.byType ? `
+            <div style="margin-top: 1rem;">
+              <h4 style="margin-bottom: 0.5rem;">Por Tipo</h4>
+              <pre>${this.escapeHtml(JSON.stringify(commitStats.data.byType, null, 2))}</pre>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+        
+        <div class="result-card">
+          <div class="result-header">?? EstatÌsticas de RefatoraÁ„o</div>
+          <div class="result-content">
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-label">Total de RefatoraÁıes</div>
+                <div class="stat-value">${refactoringStats.data?.totalRefactorings || 0}</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">MudanÁa de Complexidade MÈdia</div>
+                <div class="stat-value">${(refactoringStats.data?.averageComplexityChange || 0).toFixed(2)}</div>
+              </div>
+            </div>
+            
+            ${refactoringStats.data?.byType ? `
+            <div style="margin-top: 1rem;">
+              <h4 style="margin-bottom: 0.5rem;">Por Tipo</h4>
+              <pre>${this.escapeHtml(JSON.stringify(refactoringStats.data.byType, null, 2))}</pre>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+    
+    this.elements.outputContainer.innerHTML = html;
   }
 
   createResultCard(title, content) {
@@ -166,21 +450,21 @@ index e69de29..f3c2a1b 100644
   createPatternsCard(patterns) {
     return `
       <div class="result-card">
-        <div class="result-header">üîç Padr√µes Detectados</div>
+        <div class="result-header">?? Padrıes Detectados</div>
         <div class="result-content">
           <div style="margin-bottom: 1.5rem;">
-            <h4 style="margin-bottom: 0.5rem; color: var(--success);">‚úÖ Padr√µes (${patterns.patterns?.length || 0})</h4>
+            <h4 style="margin-bottom: 0.5rem; color: var(--success);">? Padrıes (${patterns.patterns?.length || 0})</h4>
             <pre>${this.escapeHtml(JSON.stringify(patterns.patterns || [], null, 2))}</pre>
           </div>
           
           <div style="margin-bottom: 1.5rem;">
-            <h4 style="margin-bottom: 0.5rem; color: var(--warning);">‚ö†Ô∏è Antipadr√µes (${patterns.antipatterns?.length || 0})</h4>
+            <h4 style="margin-bottom: 0.5rem; color: var(--warning);">?? Antipadrıes (${patterns.antipatterns?.length || 0})</h4>
             <pre>${this.escapeHtml(JSON.stringify(patterns.antipatterns || [], null, 2))}</pre>
           </div>
           
           ${patterns.ragInsights?.length > 0 ? `
           <div>
-            <h4 style="margin-bottom: 0.5rem; color: var(--primary);">üí° Insights RAG (${patterns.ragInsights.length})</h4>
+            <h4 style="margin-bottom: 0.5rem; color: var(--primary);">?? Insights RAG (${patterns.ragInsights.length})</h4>
             <pre>${this.escapeHtml(JSON.stringify(patterns.ragInsights, null, 2))}</pre>
           </div>
           ` : ''}
@@ -192,7 +476,7 @@ index e69de29..f3c2a1b 100644
   createStatsCard(stats, metadata) {
     return `
       <div class="result-card">
-        <div class="result-header">üìä Estat√≠sticas</div>
+        <div class="result-header">?? EstatÌsticas</div>
         <div class="result-content">
           <div class="stats-grid">
             <div class="stat-item">
@@ -203,18 +487,24 @@ index e69de29..f3c2a1b 100644
               <div class="stat-label">RAG Enriquecido</div>
               <div class="stat-value">${stats.ragEnhanced}</div>
             </div>
-            ${metadata?.analysisTime ? `
+            ${stats.commitType ? `
             <div class="stat-item">
-              <div class="stat-label">Tempo de An√°lise</div>
-              <div class="stat-value">${metadata.analysisTime}</div>
+              <div class="stat-label">Tipo de Commit</div>
+              <div class="stat-value">${stats.commitType}</div>
             </div>
             ` : ''}
+            ${stats.refactoringType ? `
             <div class="stat-item">
-              <div class="stat-label">RAG Status</div>
-              <div class="stat-value ${metadata?.ragInitialized ? 'success' : 'warning'}">
-                ${metadata?.ragInitialized ? 'Ativo' : 'Inativo'}
-              </div>
+              <div class="stat-label">Tipo de RefatoraÁ„o</div>
+              <div class="stat-value">${stats.refactoringType}</div>
             </div>
+            ` : ''}
+            ${stats.confidence ? `
+            <div class="stat-item">
+              <div class="stat-label">ConfianÁa</div>
+              <div class="stat-value">${(stats.confidence * 100).toFixed(1)}%</div>
+            </div>
+            ` : ''}
           </div>
         </div>
       </div>
@@ -224,7 +514,7 @@ index e69de29..f3c2a1b 100644
   showError(title, message) {
     this.elements.outputContainer.innerHTML = `
       <div class="error-container">
-        <div class="error-title">‚ùå ${title}</div>
+        <div class="error-title">? ${title}</div>
         <div class="error-message">${message}</div>
       </div>
     `;
@@ -237,55 +527,73 @@ index e69de29..f3c2a1b 100644
 
   clearAll() {
     this.elements.gitDiffInput.value = '';
+    this.elements.commitDiffInput.value = '';
+    this.elements.refactoringDiffInput.value = '';
+    this.elements.commitMessage.value = '';
+    this.elements.commitHash.value = '';
+    this.elements.beforeCode.value = '';
+    this.elements.afterCode.value = '';
     this.updateCharCount();
     this.elements.analysisTime.textContent = '';
     
     this.elements.outputContainer.innerHTML = `
       <div class="welcome-state">
-        <div class="welcome-icon">üöÄ</div>
-        <h3>Bem-vindo ao CodeSentry!</h3>
-        <p>Cole um git diff no campo ao lado e clique em "Analisar C√≥digo" para come√ßar a an√°lise.</p>
+        <div class="welcome-icon">??</div>
+        <h3>Bem-vindo ao CodeSentry AvanÁado!</h3>
+        <p>Escolha um tipo de an·lise e cole o cÛdigo para comeÁar.</p>
         
         <div class="features">
           <div class="feature">
-            <span class="feature-icon">üß†</span>
+            <span class="feature-icon">??</span>
             <div>
-              <strong>An√°lise Sem√¢ntica</strong>
-              <p>IA avan√ßada para entender seu c√≥digo</p>
+              <strong>An·lise Sem‚ntica</strong>
+              <p>IA avanÁada para entender seu cÛdigo</p>
             </div>
           </div>
           <div class="feature">
-            <span class="feature-icon">üîç</span>
+            <span class="feature-icon">??</span>
             <div>
-              <strong>Detec√ß√£o de Padr√µes</strong>
-              <p>Identifica boas pr√°ticas e antipadr√µes</p>
+              <strong>DetecÁ„o de Padrıes</strong>
+              <p>Identifica boas pr·ticas e antipadrıes</p>
             </div>
           </div>
           <div class="feature">
-            <span class="feature-icon">üìö</span>
+            <span class="feature-icon">??</span>
             <div>
-              <strong>RAG Integration</strong>
-              <p>Base de conhecimento local</p>
+              <strong>RAG AvanÁado</strong>
+              <p>Base de conhecimento com embeddings</p>
+            </div>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">??</span>
+            <div>
+              <strong>ClassificaÁ„o de Commits</strong>
+              <p>An·lise autom·tica de tipos de commit</p>
+            </div>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">??</span>
+            <div>
+              <strong>An·lise de RefatoraÁ„o</strong>
+              <p>DetecÁ„o de padrıes de refatoraÁ„o</p>
+            </div>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">??</span>
+            <div>
+              <strong>MÈtricas de Qualidade</strong>
+              <p>Complexidade e risco calculados</p>
             </div>
           </div>
         </div>
       </div>
     `;
-    
-    this.elements.gitDiffInput.focus();
   }
 
   setLoadingState(loading) {
     this.elements.analyzeBtn.disabled = loading;
-    this.elements.demoBtn.disabled = loading;
-    
-    if (loading) {
-      this.elements.btnText.textContent = 'Analisando...';
-      this.elements.loadingSpinner.style.display = 'inline-block';
-    } else {
-      this.elements.btnText.textContent = 'Analisar C√≥digo';
-      this.elements.loadingSpinner.style.display = 'none';
-    }
+    this.elements.btnText.textContent = loading ? 'Analisando...' : 'Analisar CÛdigo';
+    this.elements.loadingSpinner.style.display = loading ? 'inline-block' : 'none';
   }
 
   escapeHtml(unsafe) {
@@ -298,7 +606,7 @@ index e69de29..f3c2a1b 100644
   }
 }
 
-// Initialize app when DOM is loaded
+// Initialize the app when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   new CodeSentryApp();
 });

@@ -3,7 +3,7 @@ import { detectPatterns } from '../agents/patternDetectorAgent.js';
 import fs from 'fs/promises';
 
 describe('patternDetectorAgent', () => {
-  it('deve detectar antipadrÃµes corretamente', async () => {
+  it('deve detectar antipadrões corretamente', async () => {
     // cria regras fake
     const rules = {
       patterns: [],

@@ -1,23 +1,26 @@
+// Monta o prompt para análise de código com base em código + contexto (opcional).
+// @param {string} code - Código do git diff.
+// @param {string} context - (Opcional) Documentação ou histórico relevante.
 /**
- * Monta o prompt para anÃ¡lise de cÃ³digo com base em cÃ³digo + contexto (opcional).
- * @param {string} code - CÃ³digo do git diff.
- * @param {string} context - (Opcional) DocumentaÃ§Ã£o ou histÃ³rico relevante.
+ * Monta o prompt para análise de código com base em código + contexto (opcional).
+ * @param {string} code - Código do git diff.
+ * @param {string} context - (Opcional) Documentação ou histórico relevante.
  * @returns {string} Prompt final.
  */
 export function buildPrompt(code, context = "") {
   return `
-VocÃª Ã© um assistente especializado em engenharia de software.
+Você é um assistente especializado em engenharia de software.
 
-Analise o cÃ³digo a seguir. Identifique possÃ­veis **problemas de codificaÃ§Ã£o** e ofereÃ§a **sugestÃµes de melhorias**.
+Analise o código a seguir. Identifique possíveis **problemas de codificação** e ofereça **sugestões de melhorias**.
 
-${context ? `\nğŸ“„ Contexto adicional:\n${context}` : ""}
+${context ? `\n?? Contexto adicional:\n${context}` : ""}
 
-ğŸ” CÃ³digo:
+?? Código:
 """
 ${code}
 """
 
-Responda com uma explicaÃ§Ã£o clara, em linguagem natural, sem usar JSON.
-Se nÃ£o houver problemas, apenas diga que o cÃ³digo parece bom.
+Responda com uma explicação clara, em linguagem natural, sem usar JSON.
+Se não houver problemas, apenas diga que o código parece bom.
 `;
 }

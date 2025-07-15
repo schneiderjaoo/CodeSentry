@@ -1,12 +1,12 @@
 import fs from 'fs/promises';
-import SimpleRAG from './simpleRAG.js';
+import AdvancedRAG from './advancedRAG.js';
 
-// Inst√¢ncia global do RAG
+// Inst‚ncia global do RAG
 let ragService = null;
 
 async function getRagService() {
   if (!ragService) {
-    ragService = new SimpleRAG();
+    ragService = new AdvancedRAG();
     await ragService.initialize();
   }
   return ragService;
@@ -95,11 +95,12 @@ export async function parseFile(filePath) {
   }
 }
 
-// Fun√ß√£o para indexar a base de c√≥digo
+// FunÁ„o para indexar a base de cÛdigo
 export async function indexCodebase(directory = './') {
   try {
     const rag = await getRagService();
     await rag.indexDirectory(directory);
+    console.log(`Codebase indexed: ${directory}`);
   } catch (error) {
     console.error('Error indexing codebase:', error.message);
   }

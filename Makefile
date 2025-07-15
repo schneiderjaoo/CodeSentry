@@ -1,36 +1,78 @@
-# Makefile para CodeSentry
+# Makefile para CodeSentry - Docker Compose Edition
 
-.PHONY: build run run-dev clean help
+.PHONY: build up down dev clean logs help gcloud-build gcloud-deploy gcloud-deploy-full
 
-# Construir a imagem
+# Construir e subir em produção
 build:
-	docker build -t codesentry .
+	docker-compose build
 
-# Rodar como no comando docker run --rm (comportamento one-shot)
-run: build
-	docker run --rm --env-file .env codesentry
+# Subir em produção
+up: build
+	docker-compose up -d
 
-# Rodar com docker-compose (similar ao comando original)
-run-compose:
-	docker-compose up --build --remove-orphans
-	docker-compose down --remove-orphans
-
-# Rodar em modo desenvolvimento (com volumes montados)
-run-dev:
+# Subir em desenvolvimento (hot reload)
+dev:
 	docker-compose -f docker-compose.dev.yml up --build
 
-# Limpar containers e imagens
-clean:
-	docker-compose down --remove-orphans
-	docker rmi codesentry 2>/dev/null || true
+# Parar todos os serviços
+down:
+	docker-compose down
+	docker-compose -f docker-compose.dev.yml down
+
+# Ver logs
+logs:
+	docker-compose logs -f
+
+# Logs de desenvolvimento
+logs-dev:
+	docker-compose -f docker-compose.dev.yml logs -f
+
+# Limpar tudo
+clean: down
 	docker system prune -f
+
+# Google Cloud - Build da imagem
+gcloud-build:
+	@echo "??? Building for Google Cloud..."
+	gcloud builds submit --tag gcr.io/$(shell gcloud config get-value project)/codesentry
+
+# Google Cloud - Deploy no Cloud Run
+gcloud-deploy:
+	@echo "?? Deploying to Google Cloud Run..."
+	gcloud run deploy codesentry \
+		--image gcr.io/$(shell gcloud config get-value project)/codesentry \
+		--platform managed \
+		--region us-central1 \
+		--allow-unauthenticated \
+		--port 8080 \
+		--memory 2Gi \
+		--cpu 2 \
+		--max-instances 10 \
+		--timeout 300 \
+		--concurrency 80 \
+		--set-env-vars NODE_ENV=production,PORT=8080 \
+		--update-env-vars-file .env
+
+# Google Cloud - Build + Deploy completo
+gcloud-deploy-full: gcloud-build gcloud-deploy
+	@echo "? Full deployment completed!"
 
 # Mostrar ajuda
 help:
-	@echo "Comandos disponÃ­veis:"
-	@echo "  make build     - Construir a imagem Docker"
-	@echo "  make run       - Rodar como 'docker run --rm --env-file .env codesentry'"
-	@echo "  make run-compose - Rodar com docker-compose"
-	@echo "  make run-dev   - Rodar em modo desenvolvimento"
+	@echo "Comandos disponíveis:"
+	@echo ""
+	@echo "?? Local Development:"
+	@echo "  make build     - Construir imagens Docker"
+	@echo "  make up        - Subir em produção (porta 8080)"
+	@echo "  make dev       - Subir em desenvolvimento (porta 3000, hot reload)"
+	@echo "  make down      - Parar todos os serviços"
+	@echo "  make logs      - Ver logs de produção"
+	@echo "  make logs-dev  - Ver logs de desenvolvimento"
 	@echo "  make clean     - Limpar containers e imagens"
+	@echo ""
+	@echo "?? Google Cloud:"
+	@echo "  make gcloud-build        - Build da imagem no Cloud Build"
+	@echo "  make gcloud-deploy       - Deploy no Cloud Run"
+	@echo "  make gcloud-deploy-full  - Build + Deploy completo"
+	@echo ""
 	@echo "  make help      - Mostrar esta ajuda"

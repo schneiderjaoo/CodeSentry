@@ -1,4 +1,12 @@
-import { runAgenticPipeline, initializeRAG } from "./agents/agentCoordinator.js";
+import { 
+  runAgenticPipeline, 
+  initializeRAG, 
+  analyzeCommit, 
+  analyzeRefactoring, 
+  getCommitHistory, 
+  getCommitStats, 
+  getRefactoringStats 
+} from "./agents/agentCoordinator.js";
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
@@ -31,12 +39,12 @@ async function initializeOnce() {
   }
 }
 
-async function analyzeCode(gitDiff) {
+async function analyzeCode(gitDiff, commitMessage = '', commitHash = '') {
   await initializeOnce();
-  return await runAgenticPipeline(gitDiff);
+  return await runAgenticPipeline(gitDiff, commitMessage, commitHash);
 }
 
-// Fun√ß√£o para servir arquivos est√°ticos
+// FunÁ„o para servir arquivos est·ticos
 function serveStaticFile(req, res, filePath) {
   const fullPath = path.join(__dirname, 'public', filePath);
   
@@ -72,13 +80,13 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Servir p√°gina principal
+  // Servir p·gina principal
   if (req.method === 'GET' && req.url === '/') {
     serveStaticFile(req, res, 'index.html');
     return;
   }
 
-  // Servir arquivos est√°ticos
+  // Servir arquivos est·ticos
   if (req.method === 'GET' && req.url.startsWith('/public/')) {
     const filePath = req.url.replace('/public/', '');
     serveStaticFile(req, res, filePath);
@@ -113,7 +121,7 @@ const server = http.createServer(async (req, res) => {
 
     req.on('end', async () => {
       try {
-        const { gitDiff } = JSON.parse(body);
+        const { gitDiff, commitMessage, commitHash } = JSON.parse(body);
         
         if (!gitDiff) {
           res.setHeader('Content-Type', 'application/json');
@@ -122,7 +130,7 @@ const server = http.createServer(async (req, res) => {
           return;
         }
 
-        const result = await analyzeCode(gitDiff);
+        const result = await analyzeCode(gitDiff, commitMessage, commitHash);
         
         res.setHeader('Content-Type', 'application/json');
         res.writeHead(200);
@@ -170,6 +178,175 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Novo endpoint para an·lise especÌfica de commits
+  if (req.method === 'POST' && req.url === '/api/analyze-commit') {
+    let body = '';
+    
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+
+    req.on('end', async () => {
+      try {
+        const { gitDiff, commitMessage, commitHash } = JSON.parse(body);
+        
+        if (!gitDiff) {
+          res.setHeader('Content-Type', 'application/json');
+          res.writeHead(400);
+          res.end(JSON.stringify({ success: false, error: 'gitDiff is required' }));
+          return;
+        }
+
+        await initializeOnce();
+        const result = await analyzeCommit(gitDiff, commitMessage, commitHash);
+        
+        res.setHeader('Content-Type', 'application/json');
+        res.writeHead(200);
+        res.end(JSON.stringify({
+          success: true,
+          data: result,
+          timestamp: new Date().toISOString()
+        }));
+        
+      } catch (error) {
+        console.error('Commit analysis error:', error);
+        res.setHeader('Content-Type', 'application/json');
+        res.writeHead(500);
+        res.end(JSON.stringify({ 
+          success: false,
+          error: error.message,
+          timestamp: new Date().toISOString()
+        }));
+      }
+    });
+    return;
+  }
+
+  // Novo endpoint para an·lise especÌfica de refatoraÁ„o
+  if (req.method === 'POST' && req.url === '/api/analyze-refactoring') {
+    let body = '';
+    
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+
+    req.on('end', async () => {
+      try {
+        const { gitDiff, beforeCode, afterCode } = JSON.parse(body);
+        
+        if (!gitDiff) {
+          res.setHeader('Content-Type', 'application/json');
+          res.writeHead(400);
+          res.end(JSON.stringify({ success: false, error: 'gitDiff is required' }));
+          return;
+        }
+
+        await initializeOnce();
+        const result = await analyzeRefactoring(gitDiff, beforeCode, afterCode);
+        
+        res.setHeader('Content-Type', 'application/json');
+        res.writeHead(200);
+        res.end(JSON.stringify({
+          success: true,
+          data: result,
+          timestamp: new Date().toISOString()
+        }));
+        
+      } catch (error) {
+        console.error('Refactoring analysis error:', error);
+        res.setHeader('Content-Type', 'application/json');
+        res.writeHead(500);
+        res.end(JSON.stringify({ 
+          success: false,
+          error: error.message,
+          timestamp: new Date().toISOString()
+        }));
+      }
+    });
+    return;
+  }
+
+  // Endpoint para histÛrico de commits
+  if (req.method === 'GET' && req.url.startsWith('/api/commit-history')) {
+    try {
+      await initializeOnce();
+      const url = new URL(req.url, `http://${req.headers.host}`);
+      const limit = parseInt(url.searchParams.get('limit')) || 10;
+      
+      const result = await getCommitHistory(limit);
+      
+      res.setHeader('Content-Type', 'application/json');
+      res.writeHead(200);
+      res.end(JSON.stringify({
+        success: true,
+        data: result,
+        timestamp: new Date().toISOString()
+      }));
+    } catch (error) {
+      console.error('Commit history error:', error);
+      res.setHeader('Content-Type', 'application/json');
+      res.writeHead(500);
+      res.end(JSON.stringify({ 
+        success: false,
+        error: error.message,
+        timestamp: new Date().toISOString()
+      }));
+    }
+    return;
+  }
+
+  // Endpoint para estatÌsticas de commits
+  if (req.method === 'GET' && req.url === '/api/commit-stats') {
+    try {
+      await initializeOnce();
+      const result = await getCommitStats();
+      
+      res.setHeader('Content-Type', 'application/json');
+      res.writeHead(200);
+      res.end(JSON.stringify({
+        success: true,
+        data: result,
+        timestamp: new Date().toISOString()
+      }));
+    } catch (error) {
+      console.error('Commit stats error:', error);
+      res.setHeader('Content-Type', 'application/json');
+      res.writeHead(500);
+      res.end(JSON.stringify({ 
+        success: false,
+        error: error.message,
+        timestamp: new Date().toISOString()
+      }));
+    }
+    return;
+  }
+
+  // Endpoint para estatÌsticas de refatoraÁ„o
+  if (req.method === 'GET' && req.url === '/api/refactoring-stats') {
+    try {
+      await initializeOnce();
+      const result = await getRefactoringStats();
+      
+      res.setHeader('Content-Type', 'application/json');
+      res.writeHead(200);
+      res.end(JSON.stringify({
+        success: true,
+        data: result,
+        timestamp: new Date().toISOString()
+      }));
+    } catch (error) {
+      console.error('Refactoring stats error:', error);
+      res.setHeader('Content-Type', 'application/json');
+      res.writeHead(500);
+      res.end(JSON.stringify({ 
+        success: false,
+        error: error.message,
+        timestamp: new Date().toISOString()
+      }));
+    }
+    return;
+  }
+
   // 404 para outras rotas
   res.setHeader('Content-Type', 'application/json');
   res.writeHead(404);
@@ -179,18 +356,14 @@ const server = http.createServer(async (req, res) => {
 const PORT = process.env.PORT || 8080;
 
 server.listen(PORT, '0.0.0.0', async () => {
-  console.log(`üöÄ CodeSentry server running on port ${PORT}`);
-  console.log(`üåê Web interface: http://localhost:${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/health`);
-  console.log(`Demo endpoint: http://localhost:${PORT}/api/demo`);
-  console.log(`Analysis endpoint: POST http://localhost:${PORT}/api/analyze`);
+  console.log(`Web interface: http://localhost:${PORT}`);
   
   // Inicializar RAG em background
   try {
     await initializeOnce();
-    console.log('‚úÖ RAG initialized successfully');
+    console.log('RAG initialized successfully');
   } catch (error) {
-    console.error('‚ùå RAG initialization failed:', error.message);
+    console.error('RAG initialization failed:', error.message);
   }
 });
 

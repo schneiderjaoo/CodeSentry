@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CodeSentry - An√°lise de C√≥digo</title>
+    <title>CodeSentry - An·lise de CÛdigo AvanÁada</title>
     <link rel="stylesheet" href="/public/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,10 +13,10 @@
     <div class="container">
         <header class="header">
             <div class="logo">
-                <span class="logo-icon">üõ°Ô∏è</span>
+                <span class="logo-icon">??</span>
                 <div class="logo-text">
                     <h1>CodeSentry</h1>
-                    <p>An√°lise de C√≥digo com IA</p>
+                    <p>An·lise de CÛdigo com IA AvanÁada</p>
                 </div>
             </div>
             <div class="status">
@@ -30,17 +30,25 @@
         <main class="main">
             <div class="input-section">
                 <div class="section-header">
-                    <h2>üìù Git Diff Input</h2>
+                    <h2>?? An·lise de CÛdigo</h2>
                     <div class="actions">
-                        <button id="demo-btn" class="btn btn-secondary">üìÑ Demo</button>
-                        <button id="clear-btn" class="btn btn-outline">üóëÔ∏è Limpar</button>
+                        <button id="demo-btn" class="btn btn-secondary">?? Demo</button>
+                        <button id="clear-btn" class="btn btn-outline">?? Limpar</button>
+                        <button id="stats-btn" class="btn btn-secondary">?? EstatÌsticas</button>
                     </div>
                 </div>
                 
                 <div class="input-container">
-                    <textarea 
-                        id="git-diff-input" 
-                        placeholder="Cole aqui o git diff para an√°lise...
+                    <div class="input-tabs">
+                        <button class="tab-btn active" data-tab="diff">Git Diff</button>
+                        <button class="tab-btn" data-tab="commit">Commit Analysis</button>
+                        <button class="tab-btn" data-tab="refactoring">Refactoring Analysis</button>
+                    </div>
+                    
+                    <div class="tab-content active" id="diff-tab">
+                        <textarea 
+                            id="git-diff-input" 
+                            placeholder="Cole aqui o git diff para an·lise...
 
 Exemplo:
 diff --git a/index.js b/index.js
@@ -53,16 +61,49 @@ index e69de29..f3c2a1b 100644
 +}
 +
 +greet('Hello, world!');"
-                        rows="12"
-                    ></textarea>
+                            rows="12"
+                        ></textarea>
+                    </div>
+                    
+                    <div class="tab-content" id="commit-tab">
+                        <div class="form-group">
+                            <label for="commit-message">Commit Message:</label>
+                            <input type="text" id="commit-message" placeholder="feat: add new feature">
+                        </div>
+                        <div class="form-group">
+                            <label for="commit-hash">Commit Hash (opcional):</label>
+                            <input type="text" id="commit-hash" placeholder="a1b2c3d4">
+                        </div>
+                        <textarea 
+                            id="commit-diff-input" 
+                            placeholder="Cole aqui o git diff do commit..."
+                            rows="10"
+                        ></textarea>
+                    </div>
+                    
+                    <div class="tab-content" id="refactoring-tab">
+                        <div class="form-group">
+                            <label for="before-code">CÛdigo Antes (opcional):</label>
+                            <textarea id="before-code" rows="6" placeholder="CÛdigo original..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="after-code">CÛdigo Depois (opcional):</label>
+                            <textarea id="after-code" rows="6" placeholder="CÛdigo refatorado..."></textarea>
+                        </div>
+                        <textarea 
+                            id="refactoring-diff-input" 
+                            placeholder="Cole aqui o git diff da refatoraÁ„o..."
+                            rows="8"
+                        ></textarea>
+                    </div>
                     
                     <div class="input-footer">
                         <div class="input-info">
                             <span id="char-count">0 caracteres</span>
                         </div>
                         <button id="analyze-btn" class="btn btn-primary">
-                            <span class="btn-icon">üîç</span>
-                            <span class="btn-text">Analisar C√≥digo</span>
+                            <span class="btn-icon">??</span>
+                            <span class="btn-text">Analisar CÛdigo</span>
                             <span class="loading-spinner" style="display: none;"></span>
                         </button>
                     </div>
@@ -71,7 +112,7 @@ index e69de29..f3c2a1b 100644
 
             <div class="output-section">
                 <div class="section-header">
-                    <h2>üìä Resultado da An√°lise</h2>
+                    <h2>?? Resultado da An·lise</h2>
                     <div class="analysis-info">
                         <span id="analysis-time"></span>
                     </div>
@@ -79,30 +120,51 @@ index e69de29..f3c2a1b 100644
                 
                 <div class="output-container" id="output-container">
                     <div class="welcome-state">
-                        <div class="welcome-icon">üöÄ</div>
-                        <h3>Bem-vindo ao CodeSentry!</h3>
-                        <p>Cole um git diff no campo ao lado e clique em "Analisar C√≥digo" para come√ßar a an√°lise.</p>
+                        <div class="welcome-icon">??</div>
+                        <h3>Bem-vindo ao CodeSentry AvanÁado!</h3>
+                        <p>Escolha um tipo de an·lise e cole o cÛdigo para comeÁar.</p>
                         
                         <div class="features">
                             <div class="feature">
-                                <span class="feature-icon">üß†</span>
+                                <span class="feature-icon">??</span>
                                 <div>
-                                    <strong>An√°lise Sem√¢ntica</strong>
-                                    <p>IA avan√ßada para entender seu c√≥digo</p>
+                                    <strong>An·lise Sem‚ntica</strong>
+                                    <p>IA avanÁada para entender seu cÛdigo</p>
                                 </div>
                             </div>
                             <div class="feature">
-                                <span class="feature-icon">üîç</span>
+                                <span class="feature-icon">??</span>
                                 <div>
-                                    <strong>Detec√ß√£o de Padr√µes</strong>
-                                    <p>Identifica boas pr√°ticas e antipadr√µes</p>
+                                    <strong>DetecÁ„o de Padrıes</strong>
+                                    <p>Identifica boas pr·ticas e antipadrıes</p>
                                 </div>
                             </div>
                             <div class="feature">
-                                <span class="feature-icon">üìö</span>
+                                <span class="feature-icon">??</span>
                                 <div>
-                                    <strong>RAG Integration</strong>
-                                    <p>Base de conhecimento local</p>
+                                    <strong>RAG AvanÁado</strong>
+                                    <p>Base de conhecimento com embeddings</p>
+                                </div>
+                            </div>
+                            <div class="feature">
+                                <span class="feature-icon">??</span>
+                                <div>
+                                    <strong>ClassificaÁ„o de Commits</strong>
+                                    <p>An·lise autom·tica de tipos de commit</p>
+                                </div>
+                            </div>
+                            <div class="feature">
+                                <span class="feature-icon">??</span>
+                                <div>
+                                    <strong>An·lise de RefatoraÁ„o</strong>
+                                    <p>DetecÁ„o de padrıes de refatoraÁ„o</p>
+                                </div>
+                            </div>
+                            <div class="feature">
+                                <span class="feature-icon">??</span>
+                                <div>
+                                    <strong>MÈtricas de Qualidade</strong>
+                                    <p>Complexidade e risco calculados</p>
                                 </div>
                             </div>
                         </div>

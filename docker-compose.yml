@@ -4,15 +4,17 @@ services:
   codesentry:
     build: .
     container_name: codesentry-app
+    ports:
+      - "8080:8080"
     env_file:
       - .env
     environment:
       - NODE_ENV=production
-    # Remove volumes para comportamento similar ao docker run --rm
-    # volumes:
-    #   - .:/app
-    #   - /app/node_modules
-    stdin_open: true
-    tty: true
-    # Auto-remove container quando parar (similar ao --rm)
-    restart: "no"
+      - PORT=8080
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
