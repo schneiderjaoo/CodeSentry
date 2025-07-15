@@ -1,90 +1,90 @@
-# CodeSentry - Agente RAG AvanÁado para An·lise de CÛdigo
+# CodeSentry - Agente RAG Avan√ßado para An√°lise de C√≥digo
 
-CodeSentry È um sistema avanÁado de an·lise de cÛdigo que combina m˙ltiplos agentes especializados com **Retrieval-Augmented Generation (RAG)** para fornecer insights profundos sobre mudanÁas no cÛdigo. O sistema analisa git diffs, classifica commits, detecta refatoraÁıes e oferece sugestıes de melhorias.
+CodeSentry √© um sistema avan√ßado de an√°lise de c√≥digo que combina m√∫ltiplos agentes especializados com **Retrieval-Augmented Generation (RAG)** para fornecer insights profundos sobre mudan√ßas no c√≥digo. O sistema analisa git diffs, classifica commits, detecta refatora√ß√µes e oferece sugest√µes de melhorias.
 
-- ?? **An·lise Sem‚ntica** com Google Gemini
-- ??? **ClassificaÁ„o Autom·tica de Commits** (feature, bugfix, refactor, etc.)
-- ??? **DetecÁ„o de Padrıes de RefatoraÁ„o** (extract method, rename, move, etc.)
-- ?? **RAG AvanÁado** com embeddings e busca sem‚ntica
-- ?? **MÈtricas de Qualidade** (complexidade, risco, similaridade)
-- ?? **DetecÁ„o de Padrıes** baseada em regras e ML
-- ?? **EstatÌsticas e HistÛrico** de commits e refatoraÁıes
+- ?? **An√°lise Sem√¢ntica** com Google Gemini
+- ??? **Classifica√ß√£o Autom√°tica de Commits** (feature, bugfix, refactor, etc.)
+- ??? **Detec√ß√£o de Padr√µes de Refatora√ß√£o** (extract method, rename, move, etc.)
+- ?? **RAG Avan√ßado** com embeddings e busca sem√¢ntica
+- ?? **M√©tricas de Qualidade** (complexidade, risco, similaridade)
+- ?? **Detec√ß√£o de Padr√µes** baseada em regras e ML
+- ?? **Estat√≠sticas e Hist√≥rico** de commits e refatora√ß√µes
 
 ## Estrutura do Projeto
 
 ```
 CodeSentry/
 ??? agents/
-?   ??? analyzerAgent.js             # An·lise sem‚ntica com LLM
-?   ??? patternDetectorAgent.js      # DetecÁ„o de padrıes + RAG
-?   ??? retrieverAgent.js           # RecuperaÁ„o de contexto
-?   ??? commitClassifierAgent.js    # ClassificaÁ„o de commits
-?   ??? refactoringAnalyzerAgent.js # An·lise de refatoraÁ„o
-?   ??? advancedRAG.js              # RAG avanÁado com embeddings
+?   ??? analyzerAgent.js             # An√°lise sem√¢ntica com LLM
+?   ??? patternDetectorAgent.js      # Detec√ß√£o de padr√µes + RAG
+?   ??? retrieverAgent.js           # Recupera√ß√£o de contexto
+?   ??? commitClassifierAgent.js    # Classifica√ß√£o de commits
+?   ??? refactoringAnalyzerAgent.js # An√°lise de refatora√ß√£o
+?   ??? advancedRAG.js              # RAG avan√ßado com embeddings
 ?   ??? promptBuilder.js            # Montagem de prompts
-?   ??? agentCoordinator.js         # OrquestraÁ„o dos agentes
+?   ??? agentCoordinator.js         # Orquestra√ß√£o dos agentes
 ??? db/
-?   ??? rules.json                  # Regras de padrıes/antipadrıes
-?   ??? advanced_rag.db             # Base avanÁada com embeddings
+?   ??? rules.json                  # Regras de padr√µes/antipadr√µes
+?   ??? advanced_rag.db             # Base avan√ßada com embeddings
 ??? public/
 ?   ??? index.html                  # Frontend web
-?   ??? style.css                   # Estilos com tabs e formul·rios
-?   ??? script.js                   # LÛgica do frontend
+?   ??? style.css                   # Estilos com tabs e formul√°rios
+?   ??? script.js                   # L√≥gica do frontend
 ??? test/                           # Testes automatizados
 ??? main.js                         # Servidor principal
 ??? Dockerfile                      # Container Docker
-??? docker-compose.yml              # OrquestraÁ„o produÁ„o
-??? docker-compose.dev.yml          # OrquestraÁ„o desenvolvimento
+??? docker-compose.yml              # Orquestra√ß√£o produ√ß√£o
+??? docker-compose.dev.yml          # Orquestra√ß√£o desenvolvimento
 ??? Makefile                        # Comandos automatizados
-??? README.md                       # DocumentaÁ„o atualizada
+??? README.md                       # Documenta√ß√£o atualizada
 ```
 
-### 1. **Sistema RAG AvanÁado**
+### 1. **Sistema RAG Avan√ßado**
 
-// InicializaÁ„o com embeddings
-- **Embeddings**: Usa Xenova/transformers para vetorizaÁ„o sem‚ntica
-- **Similaridade**: C·lculo de similaridade cosseno entre vetores
-- **Fallback**: Sistema de hash para quando embeddings n„o est„o disponÌveis
-- **M˙ltiplas Linguagens**: Suporte para JS, TS, Python, Java, C++, Go, Rust, etc.
+// Inicializa√ß√£o com embeddings
+- **Embeddings**: Usa Xenova/transformers para vetoriza√ß√£o sem√¢ntica
+- **Similaridade**: C√°lculo de similaridade cosseno entre vetores
+- **Fallback**: Sistema de hash para quando embeddings n√£o est√£o dispon√≠veis
+- **M√∫ltiplas Linguagens**: Suporte para JS, TS, Python, Java, C++, Go, Rust, etc.
 
-### 2. **ClassificaÁ„o de Commits**
+### 2. **Classifica√ß√£o de Commits**
 
 - `feature` - Novas funcionalidades
-- `bugfix` - CorreÁıes de bugs
-- `refactor` - RefatoraÁıes
-- `docs` - DocumentaÁ„o
+- `bugfix` - Corre√ß√µes de bugs
+- `refactor` - Refatora√ß√µes
+- `docs` - Documenta√ß√£o
 - `test` - Testes
-- `style` - FormataÁ„o
-- `security` - SeguranÁa
-- `chore` - ManutenÁ„o
-- `hotfix` - CorreÁıes urgentes
+- `style` - Formata√ß√£o
+- `security` - Seguran√ßa
+- `chore` - Manuten√ß√£o
+- `hotfix` - Corre√ß√µes urgentes
 
-### 3. **An·lise de RefatoraÁ„o**
+### 3. **An√°lise de Refatora√ß√£o**
 
-**Padrıes Detectados:**
-- `extract_method` - ExtraÁ„o de mÈtodo
-- `extract_class` - ExtraÁ„o de classe
-- `rename_method` - Renomear mÈtodo
-- `move_method` - Mover mÈtodo
-- `inline_method` - Inline de mÈtodo
-- `pull_up` / `push_down` - HeranÁa
-- `modularization` - ModularizaÁ„o
+**Padr√µes Detectados:**
+- `extract_method` - Extra√ß√£o de m√©todo
+- `extract_class` - Extra√ß√£o de classe
+- `rename_method` - Renomear m√©todo
+- `move_method` - Mover m√©todo
+- `inline_method` - Inline de m√©todo
+- `pull_up` / `push_down` - Heran√ßa
+- `modularization` - Modulariza√ß√£o
 
-### 4. **Pipeline de An·lise Completo**
+### 4. **Pipeline de An√°lise Completo**
 
 **Fluxo dos Agentes:**
-1. **Parser Agent** ? Processa git diff + busca cÛdigo similar
+1. **Parser Agent** ? Processa git diff + busca c√≥digo similar
 2. **Commit Classifier** ? Classifica tipo de commit e calcula risco
-3. **Refactoring Analyzer** ? Detecta padrıes de refatoraÁ„o
-4. **Analyzer Agent** ? An·lise sem‚ntica com Gemini
-5. **Pattern Detector** ? Detecta padrıes usando regras + RAG
+3. **Refactoring Analyzer** ? Detecta padr√µes de refatora√ß√£o
+4. **Analyzer Agent** ? An√°lise sem√¢ntica com Gemini
+5. **Pattern Detector** ? Detecta padr√µes usando regras + RAG
 6. **Retriever Agent** ? Adiciona contexto relevante
 
 ## Como Usar
 
-### **ExecuÁ„o Simples**
+### **Execu√ß√£o Simples**
 ```bash
-# Instalar dependÍncias
+# Instalar depend√™ncias
 npm install
 
 # Executar com Makefile
@@ -96,7 +96,7 @@ node main.js
 
 ### **Novos Endpoints API**
 
-#### An·lise Geral
+#### An√°lise Geral
 ```bash
 POST /api/analyze
 {
@@ -104,7 +104,7 @@ POST /api/analyze
 }
 ```
 
-#### An·lise de Commit
+#### An√°lise de Commit
 ```bash
 POST /api/analyze-commit
 {
@@ -114,7 +114,7 @@ POST /api/analyze-commit
 }
 ```
 
-#### An·lise de RefatoraÁ„o
+#### An√°lise de Refatora√ß√£o
 ```bash
 POST /api/analyze-refactoring
 {
@@ -124,7 +124,7 @@ POST /api/analyze-refactoring
 }
 ```
 
-#### EstatÌsticas
+#### Estat√≠sticas
 ```bash
 GET /api/commit-stats
 GET /api/refactoring-stats
@@ -134,15 +134,15 @@ GET /api/commit-history?limit=10
 ### **Interface Web**
 
 A interface web agora inclui:
-- **Tabs** para diferentes tipos de an·lise
-- **Formul·rios** para commit message e hash
-- **Campos** para cÛdigo antes/depois
-- **Bot„o de estatÌsticas** para visualizar histÛrico
-- **Cards especÌficos** para cada tipo de an·lise
+- **Tabs** para diferentes tipos de an√°lise
+- **Formul√°rios** para commit message e hash
+- **Campos** para c√≥digo antes/depois
+- **Bot√£o de estat√≠sticas** para visualizar hist√≥rico
+- **Cards espec√≠ficos** para cada tipo de an√°lise
 
-## Exemplo de SaÌda
+## Exemplo de Sa√≠da
 
-### An·lise de Commit
+### An√°lise de Commit
 ```json
 {
   "commitAnalysis": {
@@ -184,16 +184,16 @@ A interface web agora inclui:
 }
 ```
 
-## ConfiguraÁ„o
+## Configura√ß√£o
 
-### **Vari·veis de Ambiente**
+### **Vari√°veis de Ambiente**
 ```bash
 # .env
 GEMINI_KEY=your_gemini_api_key_here
 NODE_ENV=development
 ```
 
-### **DependÍncias Principais**
+### **Depend√™ncias Principais**
 ```json
 {
   "@google/generative-ai": "^0.21.0",
@@ -207,7 +207,7 @@ NODE_ENV=development
 
 ## Docker
 
-### **ExecuÁ„o com Docker**
+### **Execu√ß√£o com Docker**
 ```bash
 # Construir e executar
 make run
@@ -215,60 +215,60 @@ make run
 # Modo desenvolvimento
 make run-dev
 
-# Ver estatÌsticas
+# Ver estat√≠sticas
 docker exec -it codesentry curl http://localhost:8080/api/commit-stats
 ```
 
-## MÈtricas e EstatÌsticas
+## M√©tricas e Estat√≠sticas
 
-### **MÈtricas de Commit**
+### **M√©tricas de Commit**
 - **Tipo de commit** (feature, bugfix, etc.)
-- **Score de risco** (0-1, baseado em conte˙do e tipo)
-- **MudanÁa de complexidade** (-1, 0, +1)
+- **Score de risco** (0-1, baseado em conte√∫do e tipo)
+- **Mudan√ßa de complexidade** (-1, 0, +1)
 - **Arquivos modificados**
 
-### **MÈtricas de RefatoraÁ„o**
-- **Tipo de refatoraÁ„o** detectado
-- **ConfianÁa** da detecÁ„o (0-1)
-- **Complexidade ciclom·tica** antes/depois
+### **M√©tricas de Refatora√ß√£o**
+- **Tipo de refatora√ß√£o** detectado
+- **Confian√ßa** da detec√ß√£o (0-1)
+- **Complexidade ciclom√°tica** antes/depois
 - **Melhorias e riscos** identificados
 
-### **MÈtricas RAG**
-- **Similaridade** com cÛdigo existente
-- **Padrıes** encontrados na base de conhecimento
+### **M√©tricas RAG**
+- **Similaridade** com c√≥digo existente
+- **Padr√µes** encontrados na base de conhecimento
 - **Contexto** enriquecido
 
 ## Melhorias Implementadas
 
-### ? **Sistema RAG AvanÁado**
+### ? **Sistema RAG Avan√ßado**
 - Embeddings com Xenova/transformers
 - Similaridade cosseno
 - Fallback para hash-based search
-- Suporte a m˙ltiplas linguagens
+- Suporte a m√∫ltiplas linguagens
 - Base de conhecimento persistente
 
-### ? **ClassificaÁ„o de Commits**
-- DetecÁ„o autom·tica de tipos
-- C·lculo de risco baseado em conte˙do
-- An·lise de mudanÁa de complexidade
-- Sugestıes especÌficas por tipo
+### ? **Classifica√ß√£o de Commits**
+- Detec√ß√£o autom√°tica de tipos
+- C√°lculo de risco baseado em conte√∫do
+- An√°lise de mudan√ßa de complexidade
+- Sugest√µes espec√≠ficas por tipo
 
-### ? **An·lise de RefatoraÁ„o**
-- DetecÁ„o de 10+ padrıes de refatoraÁ„o
-- MÈtricas de complexidade
-- IdentificaÁ„o de melhorias e riscos
-- An·lise antes/depois
+### ? **An√°lise de Refatora√ß√£o**
+- Detec√ß√£o de 10+ padr√µes de refatora√ß√£o
+- M√©tricas de complexidade
+- Identifica√ß√£o de melhorias e riscos
+- An√°lise antes/depois
 
 ### ? **Interface Web Melhorada**
-- Sistema de tabs para diferentes an·lises
-- Formul·rios especÌficos por tipo
+- Sistema de tabs para diferentes an√°lises
+- Formul√°rios espec√≠ficos por tipo
 - Cards de resultado especializados
-- VisualizaÁ„o de estatÌsticas
+- Visualiza√ß√£o de estat√≠sticas
 
 ### ? **API Expandida**
-- Endpoints especÌficos por tipo de an·lise
-- EstatÌsticas e histÛrico
-- Par‚metros opcionais (commit message, hash, etc.)
+- Endpoints espec√≠ficos por tipo de an√°lise
+- Estat√≠sticas e hist√≥rico
+- Par√¢metros opcionais (commit message, hash, etc.)
 
 ## Testes
 
@@ -276,49 +276,21 @@ docker exec -it codesentry curl http://localhost:8080/api/commit-stats
 # Executar testes
 npm test
 
-# Testes especÌficos
+# Testes espec√≠ficos
 npm test parserAgent.test.js
 npm test patternDetectorAgent.test.js
 ```
-
-## Roadmap
-
-### **PrÛximas Melhorias**
-- [ ] **IntegraÁ„o com Git Hooks** para an·lise autom·tica
-- [ ] **Dashboard de MÈtricas** em tempo real
-- [ ] **An·lise de DependÍncias** entre commits
-- [ ] **Sugestıes de RefatoraÁ„o** autom·ticas
-- [ ] **IntegraÁ„o com IDEs** (VS Code, IntelliJ)
-- [ ] **An·lise de Performance** de mudanÁas
-- [ ] **DetecÁ„o de Code Smells** avanÁada
-- [ ] **RelatÛrios de Qualidade** periÛdicos
-
-### **Melhorias TÈcnicas**
-- [ ] **Vector Database** (ChromaDB, Pinecone)
-- [ ] **Fine-tuning** de modelos para cÛdigo
-- [ ] **An·lise de Sentimento** de commits
-- [ ] **PrediÁ„o de Bugs** baseada em padrıes
-- [ ] **An·lise de SeguranÁa** automatizada
-
-## ContribuiÁ„o
+## Contribui√ß√£o
 
 1. Fork o projeto
 2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanÁas (`git commit -m 'Add some AmazingFeature'`)
+3. Commit suas mudan√ßas (`git commit -m 'Add some AmazingFeature'`)
 4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
 
-## LicenÁa
+## Licen√ßa
 
-Este projeto est· sob a licenÁa ISC. Veja o arquivo `LICENSE` para mais detalhes.
-
-## Agradecimentos
-
-- **Google Gemini** pela API de IA
-- **Xenova** pelos transformers para embeddings
-- **SQLite** pela base de dados local
-- **Node.js** pela plataforma de execuÁ„o
-
+Este projeto est√° sob a licen√ßa ISC. Veja o arquivo `LICENSE` para mais detalhes.
 ---
 
-**CodeSentry** - Transformando an·lise de cÛdigo com IA avanÁada! ??
+**CodeSentry** - Transformando an√°lise de c√≥digo com IA avan√ßada!
